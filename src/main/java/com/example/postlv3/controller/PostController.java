@@ -1,5 +1,6 @@
 package com.example.postlv3.controller;
 
+import com.example.postlv3.dto.PostCommentResponseDto;
 import com.example.postlv3.dto.RequestDto;
 import com.example.postlv3.dto.ResponseDto;
 import com.example.postlv3.dto.StatusResponseDto;
@@ -26,13 +27,13 @@ public class PostController {
 
     // 2. 게시글 전체 조회
     @GetMapping("/posts")
-    public List<ResponseDto> getPosts() {
+    public List<PostCommentResponseDto> getPosts() {
         return postService.getPosts();
     }
 
     // 3. 선택한 게시글 조회
     @GetMapping("/post/{id}")
-    public ResponseDto getPost(@PathVariable Long id) {
+    public PostCommentResponseDto getPost(@PathVariable Long id) {
         return postService.getPost(id);
     }
 

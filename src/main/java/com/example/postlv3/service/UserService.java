@@ -31,7 +31,7 @@ public class UserService {
         //회원 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            return new StatusResponseDto("중복된 username 입니다.",400);
         }
 
         //사용자 role 확인

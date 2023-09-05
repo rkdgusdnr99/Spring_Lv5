@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Table(name = "post")
@@ -41,4 +44,9 @@ public class Post extends Timestamped {
         this.user = user;
         user.getPosts().add(this);
     }
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+
+    //@JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<Comment> comments = new ArrayList<>();
 }

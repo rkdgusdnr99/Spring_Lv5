@@ -1,12 +1,14 @@
 package com.example.postlv3.service;
 
-import com.example.postlv3.dto.RequestDto;
-import com.example.postlv3.dto.ResponseDto;
-import com.example.postlv3.dto.StatusResponseDto;
+import com.example.postlv3.dto.*;
+import com.example.postlv3.entity.Comment;
 import com.example.postlv3.entity.Post;
 import com.example.postlv3.entity.User;
+import com.example.postlv3.entity.UserRoleEnum;
+import com.example.postlv3.repository.CommentRepository;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,17 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
-
-    public PostService(PostRepository postRepository, UserRepository userRepository){
-        this.postRepository = postRepository;
-        this.userRepository = userRepository;
-    }
-
+    private final CommentRepository commentRepository;
 
 
     // 1. 게시글 작성
@@ -56,26 +53,42 @@ public class PostService {
     // 2. 게시글 전체 조회
     // 전체 조회 : 제목,작성자명, 작성 내용, 작성 날짜
     // 작성 날짜 기준, 내림차순 정렬
-    public List<ResponseDto> getPosts() {
+    public List<PostCommentResponseDto> getPosts() {
         List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
-        List<ResponseDto> result = new ArrayList<>();
+        List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
 
         for (Post post : posts) {
-            result.add(new ResponseDto(post));
+            List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(post.getId());
+            List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
+
+            for (Comment comment : comments) {
+                commentResponseDtos.add(new CommentResponseDto(comment));
+            }
+
+            PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+            postCommentResponseDtos.add(postCommentResponseDto);
         }
 
-        return result;
+        return postCommentResponseDtos;
     }
+
 
     // 3. 선택한 게시글 조회
     // 선택한 게시글의 제목,작성자명,작성 날짜, 작성 내용을 조회하기
     // (검색 기능이 아닌, 간단한 게시글 조회)
-    public ResponseDto getPost(Long id) {
-        Post post = findPost(id);
+    public PostCommentResponseDto getPost(Long id) {
+        Post post = postRepository.findPostById(id);
 
-        ResponseDto result = new ResponseDto(post);
+        List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(id);
+        List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
 
-        return result;
+        for (Comment comment : comments) {
+            commentResponseDtos.add(new CommentResponseDto(comment));
+        }
+
+        PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+
+        return postCommentResponseDto;
     }
 
     // 4. 게시글 수정
@@ -88,11 +101,12 @@ public class PostService {
         User currentUser = getCurrentUser();
         Post post = findPost(id);
 
-        validateUserAuthority(post,currentUser);
-
-        post.update(requestDto);
-
-        return new ResponseDto(post);
+        if (validateUserAuthority(post,currentUser)) {
+            post.update(requestDto);
+            return new ResponseDto(post);
+        }
+        else
+            return new ResponseDto("본인의 게시글만 수정 할 수 있습니다.", 400);
     }
 
     // 5. 게시글 삭제
@@ -104,11 +118,13 @@ public class PostService {
         User currentUser = getCurrentUser();
         Post post = findPost(id);
 
-        validateUserAuthority(post,currentUser);
-
-        postRepository.delete(post);
-
-        return new StatusResponseDto("삭제 성공", 200);
+        if (validateUserAuthority(post,currentUser)) {
+            postRepository.delete(post);
+            return new StatusResponseDto("삭제 성공", 200);
+        }
+        else {
+            return new StatusResponseDto("본인의 게시글만 삭제 할 수 있습니다.", 400);
+        }
     }
 
     // id 찾기
@@ -131,9 +147,11 @@ public class PostService {
         }
     }
 
-    private void validateUserAuthority(Post post, User currentUser) {
-        if (!post.getUser().equals(currentUser)) {
-            throw new IllegalArgumentException("본인의 게시글만 수정/삭제 할 수 있습니다.");
-        }
+    private boolean validateUserAuthority(Post post, User currentUser) {
+        if (!(post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN))
+            return false;
+        else
+            return true;
     }
+
 }
