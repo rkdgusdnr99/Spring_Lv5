@@ -34,4 +34,10 @@ public class ResponseDto {
         this.createdAt = post.getCreatedAt();
         this.modifiedAt = post.getModifiedAt();
     }
+
+    public ResponseDto(String msg, Integer statusCode) {
+        this.msg = msg;
+        this.statusCode = statusCode;
+    }
+
 }

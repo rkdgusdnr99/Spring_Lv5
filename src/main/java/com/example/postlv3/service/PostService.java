@@ -79,7 +79,7 @@ public class PostService {
     public PostCommentResponseDto getPost(Long id) {
         Post post = postRepository.findPostById(id);
 
-        List<Comment> comments = commentRepository.findAllByPostidOrderById(id);
+        List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(id);
         List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
 
         for (Comment comment : comments) {
@@ -153,4 +153,5 @@ public class PostService {
         else
             return true;
     }
+
 }
