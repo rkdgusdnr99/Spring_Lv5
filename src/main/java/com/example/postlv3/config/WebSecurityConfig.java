@@ -63,7 +63,6 @@ public class WebSecurityConfig {
                         // 조회 API는 비로그인 유저도 접근 가능.
                         .requestMatchers(HttpMethod.GET, "/api/post/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
-
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 

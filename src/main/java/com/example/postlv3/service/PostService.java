@@ -5,6 +5,7 @@ import com.example.postlv3.dto.ResponseDto;
 import com.example.postlv3.dto.StatusResponseDto;
 import com.example.postlv3.entity.Post;
 import com.example.postlv3.entity.User;
+import com.example.postlv3.entity.UserRoleEnum;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
 import org.springframework.security.core.Authentication;
@@ -132,7 +133,7 @@ public class PostService {
     }
 
     private void validateUserAuthority(Post post, User currentUser) {
-        if (!post.getUser().equals(currentUser)) {
+        if (!(post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)) {
             throw new IllegalArgumentException("본인의 게시글만 수정/삭제 할 수 있습니다.");
         }
     }
