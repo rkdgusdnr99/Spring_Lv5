@@ -22,7 +22,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository; // final은 무조건 생성자로 주입
 
-    private final UserRepository userRepository; 
+    private final UserRepository userRepository;
 
 
 

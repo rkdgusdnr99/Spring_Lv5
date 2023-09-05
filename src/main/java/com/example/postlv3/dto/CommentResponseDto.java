@@ -2,9 +2,13 @@ package com.example.postlv3.dto;
 
 import com.example.postlv3.entity.Comment;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Getter
+@NoArgsConstructor
 public class CommentResponseDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long id;

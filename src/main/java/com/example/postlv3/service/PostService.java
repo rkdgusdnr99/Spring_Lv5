@@ -1,13 +1,13 @@
 package com.example.postlv3.service;
 
-import com.example.postlv3.dto.RequestDto;
-import com.example.postlv3.dto.ResponseDto;
-import com.example.postlv3.dto.StatusResponseDto;
+import com.example.postlv3.dto.*;
+import com.example.postlv3.entity.Comment;
 import com.example.postlv3.entity.Post;
 import com.example.postlv3.entity.User;
 import com.example.postlv3.entity.UserRoleEnum;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,17 +18,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
-
-    public PostService(PostRepository postRepository, UserRepository userRepository){
-        this.postRepository = postRepository;
-        this.userRepository = userRepository;
-    }
-
+    private final CommentRepository commentRepository;
 
 
     // 1. 게시글 작성
@@ -57,7 +52,7 @@ public class PostService {
     // 2. 게시글 전체 조회
     // 전체 조회 : 제목,작성자명, 작성 내용, 작성 날짜
     // 작성 날짜 기준, 내림차순 정렬
-    public List<ResponseDto> getPosts() {
+    public List<PostCommentResponseDto> getPosts() {
         List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
         List<ResponseDto> result = new ArrayList<>();
 
@@ -68,15 +63,23 @@ public class PostService {
         return result;
     }
 
+
     // 3. 선택한 게시글 조회
     // 선택한 게시글의 제목,작성자명,작성 날짜, 작성 내용을 조회하기
     // (검색 기능이 아닌, 간단한 게시글 조회)
-    public ResponseDto getPost(Long id) {
-        Post post = findPost(id);
+    public PostCommentResponseDto getPost(Long id) {
+        Post post = postRepository.findPostById(id);
 
-        ResponseDto result = new ResponseDto(post);
+        List<Comment> comments = commentRepository.findAllByPostidOrderById(id);
+        List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
 
-        return result;
+        for (Comment comment : comments) {
+            commentResponseDtos.add(new CommentResponseDto(comment));
+        }
+
+        PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+
+        return postCommentResponseDto;
     }
 
     // 4. 게시글 수정

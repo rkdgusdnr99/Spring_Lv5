@@ -1,11 +1,8 @@
 package com.example.postlv3.controller;
-
 import com.example.postlv3.dto.*;
 import com.example.postlv3.service.CommentService;
-import com.example.postlv3.service.PostService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -30,10 +27,6 @@ public class CommentController {
     }
 
     // 5. 게시글 삭제
-    @DeleteMapping("/post/{id}")
-    public StatusResponseDto deletePost(@PathVariable Long id) {
-        return commentService.deletePost(id);
-    }
     @DeleteMapping("/comment/{id}")
     public StatusResponseDto deleteComment(@PathVariable Long id) {
         return commentService.deletePost(id);
