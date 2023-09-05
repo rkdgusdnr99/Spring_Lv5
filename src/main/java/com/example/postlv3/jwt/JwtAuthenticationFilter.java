@@ -1,6 +1,7 @@
 package com.example.postlv3.jwt;
 
 import com.example.postlv3.dto.LoginUserRequestDto;
+import com.example.postlv3.dto.StatusResponseDto;
 import com.example.postlv3.entity.UserRoleEnum;
 import com.example.postlv3.security.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,11 +57,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         log.info("로그인 성공 및 JWT 생성");
+
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
         String token = jwtUtil.createToken(username, role);
         jwtUtil.addJwtToCookie(token, response);
+
+        StatusResponseDto responseDto = new StatusResponseDto("로그인 성공", 200);
+
+        // 응답 데이터 설정
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+
+        // JSON 변환 후 출력
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(response.getWriter(), responseDto);
     }
 
     @Override

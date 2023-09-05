@@ -5,6 +5,7 @@ import com.example.postlv3.entity.Comment;
 import com.example.postlv3.entity.Post;
 import com.example.postlv3.entity.User;
 import com.example.postlv3.entity.UserRoleEnum;
+import com.example.postlv3.repository.CommentRepository;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -54,13 +55,21 @@ public class PostService {
     // 작성 날짜 기준, 내림차순 정렬
     public List<PostCommentResponseDto> getPosts() {
         List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
-        List<ResponseDto> result = new ArrayList<>();
+        List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
 
         for (Post post : posts) {
-            result.add(new ResponseDto(post));
+            List<Comment> comments = commentRepository.findAllByPostidOrderById(post.getId());
+            List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
+
+            for (Comment comment : comments) {
+                commentResponseDtos.add(new CommentResponseDto(comment));
+            }
+
+            PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+            postCommentResponseDtos.add(postCommentResponseDto);
         }
 
-        return result;
+        return postCommentResponseDtos;
     }
 
 
