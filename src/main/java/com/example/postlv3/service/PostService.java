@@ -58,7 +58,7 @@ public class PostService {
         List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
 
         for (Post post : posts) {
-            List<Comment> comments = commentRepository.findAllByPostidOrderById(post.getId());
+            List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(post.getId());
             List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
 
             for (Comment comment : comments) {
@@ -101,11 +101,12 @@ public class PostService {
         User currentUser = getCurrentUser();
         Post post = findPost(id);
 
-        validateUserAuthority(post,currentUser);
-
-        post.update(requestDto);
-
-        return new ResponseDto(post);
+        if (validateUserAuthority(post,currentUser)) {
+            post.update(requestDto);
+            return new ResponseDto(post);
+        }
+        else
+            return new ResponseDto("본인의 게시글만 수정 할 수 있습니다.", 400);
     }
 
     // 5. 게시글 삭제
@@ -117,11 +118,13 @@ public class PostService {
         User currentUser = getCurrentUser();
         Post post = findPost(id);
 
-        validateUserAuthority(post,currentUser);
-
-        postRepository.delete(post);
-
-        return new StatusResponseDto("삭제 성공", 200);
+        if (validateUserAuthority(post,currentUser)) {
+            postRepository.delete(post);
+            return new StatusResponseDto("삭제 성공", 200);
+        }
+        else {
+            return new StatusResponseDto("본인의 게시글만 삭제 할 수 있습니다.", 400);
+        }
     }
 
     // id 찾기
@@ -144,9 +147,10 @@ public class PostService {
         }
     }
 
-    private void validateUserAuthority(Post post, User currentUser) {
-        if (!(post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)) {
-            throw new IllegalArgumentException("본인의 게시글만 수정/삭제 할 수 있습니다.");
-        }
+    private boolean validateUserAuthority(Post post, User currentUser) {
+        if (!(post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN))
+            return false;
+        else
+            return true;
     }
 }

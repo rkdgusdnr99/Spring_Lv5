@@ -51,11 +51,13 @@ public class CommentService {
         User currentUser = getCurrentUser();
         Comment comment = findComment(id);
 
-        validateUserAuthority(comment, currentUser);
-
-        comment.update(requestDto);
-
-        return new CommentResponseDto(comment);
+        if (validateUserAuthority(comment, currentUser)) {
+            comment.update(requestDto);
+            return new CommentResponseDto(comment);
+        }
+        else {
+            return new CommentResponseDto("본인의 댓글만 수정 할 수 있습니다.", 400);
+        }
     }
 
     // 댓글 삭제
@@ -63,11 +65,12 @@ public class CommentService {
         User currentUser = getCurrentUser();
         Comment comment = findComment(id);
 
-        validateUserAuthority(comment,currentUser);
-
-        commentRepository.delete(comment);
-
-        return new StatusResponseDto("삭제 성공", 200);
+        if(validateUserAuthority(comment,currentUser)) {
+            commentRepository.delete(comment);
+            return new StatusResponseDto("삭제 성공", 200);
+        }
+        else
+            return new StatusResponseDto("본인의 댓글만 삭제 할 수 있습니다.", 400);
     }
 
     // id 찾기
@@ -90,10 +93,11 @@ public class CommentService {
         }
     }
 
-    private void validateUserAuthority(Comment comment, User currentUser) {
-        if (!(comment.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)) {
-            throw new IllegalArgumentException("본인의 게시글만 수정/삭제 할 수 있습니다.");
-        }
+    private boolean validateUserAuthority(Comment comment, User currentUser) {
+        if (!(comment.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN))
+            return false;
+        else
+            return true;
     }
 }
 
