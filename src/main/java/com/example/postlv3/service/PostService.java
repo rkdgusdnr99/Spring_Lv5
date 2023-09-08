@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,12 +54,35 @@ public class PostService {
     // 2. 게시글 전체 조회
     // 전체 조회 : 제목,작성자명, 작성 내용, 작성 날짜
     // 작성 날짜 기준, 내림차순 정렬
+//    public List<PostCommentResponseDto> getPosts() {
+//        List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
+//        List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
+//
+//        for (Post post : posts) {
+//            List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(post.getId());
+//            List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
+//
+//            for (Comment comment : comments) {
+//                commentResponseDtos.add(new CommentResponseDto(comment));
+//            }
+//
+//            PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+//            postCommentResponseDtos.add(postCommentResponseDto);
+//        }
+//
+//        return postCommentResponseDtos;
+//    }
+
+
+    // n+1 문제 수정 코드
+
     public List<PostCommentResponseDto> getPosts() {
         List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
 
         for (Post post : posts) {
-            List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(post.getId());
+            // comments are already fetched with the post due to @EntityGraph
+            List<Comment> comments = post.getComments();
             List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
 
             for (Comment comment : comments) {
@@ -71,6 +95,10 @@ public class PostService {
 
         return postCommentResponseDtos;
     }
+
+
+
+
 
 
     // 3. 선택한 게시글 조회
