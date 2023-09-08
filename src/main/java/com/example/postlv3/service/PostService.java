@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +27,7 @@ public class PostService {
     private final CommentRepository commentRepository;
 
 
-    // 1. 게시글 작성
-    // 제목,작성자명,비밀번호,작성 내용을 저장하고
-    // 저장된 게시글을 client로 반환하기
-
-    // lv2 => 작성자명(username)
+    // 게시글 작성
     public ResponseDto createPost(RequestDto requestDto) {
         User currentUser = getCurrentUser();
 
@@ -50,31 +45,7 @@ public class PostService {
 
     }
 
-    // 2. 게시글 전체 조회
-    // 전체 조회 : 제목,작성자명, 작성 내용, 작성 날짜
-    // 작성 날짜 기준, 내림차순 정렬
-//    public List<PostCommentResponseDto> getPosts() {
-//        List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
-//        List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
-//
-//        for (Post post : posts) {
-//            List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(post.getId());
-//            List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
-//
-//            for (Comment comment : comments) {
-//                commentResponseDtos.add(new CommentResponseDto(comment));
-//            }
-//
-//            PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
-//            postCommentResponseDtos.add(postCommentResponseDto);
-//        }
-//
-//        return postCommentResponseDtos;
-//    }
-
-
-    // n+1 문제 수정 코드
-
+    // 게시글 수정
     public List<PostCommentResponseDto> getPosts() {
         List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
@@ -95,14 +66,8 @@ public class PostService {
         return postCommentResponseDtos;
     }
 
-
-
-
-
-
-    // 3. 선택한 게시글 조회
-    // 선택한 게시글의 제목,작성자명,작성 날짜, 작성 내용을 조회하기
-    // (검색 기능이 아닌, 간단한 게시글 조회)
+    // 선택한 게시글 조회
+    //
     public PostCommentResponseDto getPost(Long id) {
         Post post = postRepository.findPostById(id);
 
@@ -118,11 +83,7 @@ public class PostService {
         return postCommentResponseDto;
     }
 
-    // 4. 게시글 수정
-    // 수정을 요청할 때 수정할 데이터와 비번을 같이 보내서 서버에서 일치 여부 확인 -> 트랜젝션 활용
-    // 제목,작성자명,작성 내용 수정 후, 수정된 게시글 반환
-
-    // 비밀번호 일치 -> 토큰 유효하면 수정 가능
+    // 게시글 수정
     @Transactional
     public ResponseDto updatePost(Long id, RequestDto requestDto) {
         User currentUser = getCurrentUser();
@@ -136,11 +97,7 @@ public class PostService {
             return new ResponseDto("본인의 게시글만 수정 할 수 있습니다.", 400);
     }
 
-    // 5. 게시글 삭제
-    // 삭제를 요청할 때 비밀번호를 같이 보내서 비밀번호 일치 확인 한 후
-    // 선택한 게시글 삭제 client로 성공했다는 표시 반환하기 ->
-
-    // 수정과 동일하게 비밀번호 -> 유효 토큰
+    // 게시글 삭제
     public StatusResponseDto deletePost(Long id) {
         User currentUser = getCurrentUser();
         Post post = findPost(id);
@@ -155,6 +112,10 @@ public class PostService {
         }
     }
 
+
+
+
+
     // id 찾기
     public Post findPost(Long id) {
         return postRepository.findById(id).orElseThrow(() ->
@@ -162,6 +123,8 @@ public class PostService {
         );
     }
 
+
+    // 저장된 토큰과 현재 입력하는 유저네임 비교
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getPrincipal() instanceof UserDetails) {
@@ -175,6 +138,7 @@ public class PostService {
         }
     }
 
+    // 수정,삭제 권한
     private boolean validateUserAuthority(Post post, User currentUser) {
         if (post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)
             return true;

@@ -28,10 +28,10 @@ public class User {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
 

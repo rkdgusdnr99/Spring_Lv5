@@ -20,7 +20,7 @@ public class Comment extends Timestamped {
     @Column(name = "contents", nullable = false, length = 500)
     private String contents;
 
-    // 게시물(Memo)의 id와 Comment의 postId 연결
+    // 게시물(Post)의 id와 Comment의 postId 연결
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", referencedColumnName = "id", updatable = false)
     private Post post;

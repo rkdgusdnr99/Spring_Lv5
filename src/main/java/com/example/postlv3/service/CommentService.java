@@ -1,13 +1,13 @@
 package com.example.postlv3.service;
 
-import com.example.postlv3.dto.*;
+import com.example.postlv3.dto.CommentRequestDto;
+import com.example.postlv3.dto.CommentResponseDto;
+import com.example.postlv3.dto.StatusResponseDto;
 import com.example.postlv3.entity.Comment;
-
 import com.example.postlv3.entity.Post;
 import com.example.postlv3.entity.User;
 import com.example.postlv3.entity.UserRoleEnum;
 import com.example.postlv3.repository.CommentRepository;
-
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CommentService {
 
-    private final CommentRepository commentRepository; // final은 무조건 생성자로 주입
+    private final CommentRepository commentRepository;
 
     private final UserRepository userRepository;
 
@@ -83,6 +83,10 @@ public class CommentService {
         );
     }
 
+
+
+
+    // 저장된 토큰과 현재 입력하는 유저네임 비교
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getPrincipal() instanceof UserDetails) {
@@ -96,6 +100,7 @@ public class CommentService {
         }
     }
 
+    // 수정,삭제 권한
     private boolean validateUserAuthority(Comment comment, User currentUser) {
         if (comment.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)
             return true;
