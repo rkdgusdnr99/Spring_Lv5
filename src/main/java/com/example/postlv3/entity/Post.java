@@ -45,8 +45,6 @@ public class Post extends Timestamped {
         user.getPosts().add(this);
     }
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
-
-    //@JsonInclude(JsonInclude.Include.NON_EMPTY)
+    @OneToMany(mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 }

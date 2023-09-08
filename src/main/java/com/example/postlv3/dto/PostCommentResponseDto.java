@@ -1,6 +1,5 @@
 package com.example.postlv3.dto;
 
-import com.example.postlv3.entity.Comment;
 import com.example.postlv3.entity.Post;
 import lombok.Getter;
 
