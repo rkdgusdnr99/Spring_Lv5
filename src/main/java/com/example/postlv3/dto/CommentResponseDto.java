@@ -13,7 +13,7 @@ public class CommentResponseDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long id;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Long postid;
+    private Long postId;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String contents;
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -30,7 +30,7 @@ public class CommentResponseDto {
 
     public CommentResponseDto(Comment comment) {
         this.id = comment.getId();
-        this.postid = comment.getPostid();
+        this.postId = comment.getPost().getId();
         this.contents = comment.getContents();
         this.username = comment.getUser().getUsername();
         this.createdAt = comment.getCreatedAt();

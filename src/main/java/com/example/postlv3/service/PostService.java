@@ -39,7 +39,6 @@ public class PostService {
         // entity 관계 설정 추가
         Post post = new Post(requestDto);
         post.setUser(currentUser);
-        currentUser.getPosts().add(post);
 
 
         // db에 저장
@@ -107,7 +106,7 @@ public class PostService {
     public PostCommentResponseDto getPost(Long id) {
         Post post = postRepository.findPostById(id);
 
-        List<Comment> comments = commentRepository.findAllByPostidOrderByCreatedAtDesc(id);
+        List<Comment> comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(id);
         List<CommentResponseDto> commentResponseDtos = new ArrayList<>();
 
         for (Comment comment : comments) {
@@ -152,6 +151,7 @@ public class PostService {
         }
         else {
             return new StatusResponseDto("본인의 게시글만 삭제 할 수 있습니다.", 400);
+            //return ResponseEntity.status(200).body("상태코드 : " + HttpStatus.OK.value() + " 메세지 : 게시물 수정 성공");
         }
     }
 
@@ -176,10 +176,10 @@ public class PostService {
     }
 
     private boolean validateUserAuthority(Post post, User currentUser) {
-        if (!(post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN))
-            return false;
-        else
+        if (post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)
             return true;
+        else
+            return false;
     }
 
 }

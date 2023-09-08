@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class StatusResponseDto {
+
     private String msg;
     private Integer statusCode;
 

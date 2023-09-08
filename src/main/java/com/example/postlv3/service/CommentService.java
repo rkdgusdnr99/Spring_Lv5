@@ -3,10 +3,12 @@ package com.example.postlv3.service;
 import com.example.postlv3.dto.*;
 import com.example.postlv3.entity.Comment;
 
+import com.example.postlv3.entity.Post;
 import com.example.postlv3.entity.User;
 import com.example.postlv3.entity.UserRoleEnum;
 import com.example.postlv3.repository.CommentRepository;
 
+import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -24,17 +26,18 @@ public class CommentService {
 
     private final UserRepository userRepository;
 
+    private final PostRepository postRepository;
+
 
 
     // 댓글 작성
     public CommentResponseDto createComment(CommentRequestDto requestDto) {
         User currentUser = getCurrentUser();
+        Post post = postRepository.findPostById(requestDto.getPostId());
 
         // entity 관계 설정 추가
-        Comment comment = new Comment(requestDto);
+        Comment comment = new Comment(requestDto, post);
         comment.setUser(currentUser);
-        currentUser.getComments().add(comment);
-
 
         // db에 저장
         Comment saveComment = commentRepository.save(comment);
@@ -94,10 +97,10 @@ public class CommentService {
     }
 
     private boolean validateUserAuthority(Comment comment, User currentUser) {
-        if (!(comment.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN))
-            return false;
-        else
+        if (comment.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)
             return true;
+        else
+            return false;
     }
 }
 
