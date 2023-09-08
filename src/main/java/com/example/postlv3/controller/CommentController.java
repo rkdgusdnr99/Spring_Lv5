@@ -1,5 +1,8 @@
 package com.example.postlv3.controller;
-import com.example.postlv3.dto.*;
+
+import com.example.postlv3.dto.CommentRequestDto;
+import com.example.postlv3.dto.CommentResponseDto;
+import com.example.postlv3.dto.StatusResponseDto;
 import com.example.postlv3.service.CommentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,5 +35,5 @@ public class CommentController {
         return commentService.deletePost(id);
     }
 
-    //test -commit 2
+
 }
