@@ -5,6 +5,8 @@ import com.example.postlv3.dto.RequestDto;
 import com.example.postlv3.dto.ResponseDto;
 import com.example.postlv3.dto.StatusResponseDto;
 import com.example.postlv3.service.PostService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,6 +51,7 @@ public class PostController {
         return postService.deletePost(id);
     }
 
+    // 6. 게시글 좋아요
     @PutMapping("/post/{id}/like")
     public StatusResponseDto updatePostLike(@PathVariable Long id) {
         return postService.updatePostLike(id);

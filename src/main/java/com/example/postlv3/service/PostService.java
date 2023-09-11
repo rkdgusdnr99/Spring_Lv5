@@ -34,14 +34,12 @@ public class PostService {
         Post post = new Post(requestDto);
         post.setUser(currentUser);
 
-
         // db에 저장
         Post savePost = postRepository.save(post);
 
         // 반환
         ResponseDto responseDto = new ResponseDto(savePost);
         return responseDto;
-
     }
 
     // 게시글 수정
@@ -86,7 +84,6 @@ public class PostService {
     @Transactional
     public ResponseDto updatePost(Long id, RequestDto requestDto) {
         Post post = findPost(id);
-
         post.update(requestDto);
         return new ResponseDto(post);
     }
@@ -94,7 +91,6 @@ public class PostService {
     // 게시글 삭제
     public StatusResponseDto deletePost(Long id) {
         Post post = findPost(id);
-
         postRepository.delete(post);
         return new StatusResponseDto("삭제 성공", 200);
     }
@@ -124,7 +120,8 @@ public class PostService {
     }
 
 
-    // 저장된 토큰과 현재 입력하는 유저네임 비교
+    // 저장된 토큰과 현재 입력하는 유저네임 비교.
+    // 직접 Controller에서 넣어주는 편이 좋다고 생각하지만, 안전을 위해 전달하지 않는게 좋다고 한다.
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication.getPrincipal() instanceof UserDetails) {
@@ -138,11 +135,4 @@ public class PostService {
         }
     }
 
-    // 수정,삭제 권한
-    private boolean validateUserAuthority(Post post, User currentUser) {
-        if (post.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)
-            return true;
-        else
-            return false;
-    }
 }

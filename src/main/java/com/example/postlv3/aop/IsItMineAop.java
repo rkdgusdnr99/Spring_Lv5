@@ -3,6 +3,7 @@ package com.example.postlv3.aop;
 import com.example.postlv3.entity.Comment;
 import com.example.postlv3.entity.Post;
 import com.example.postlv3.entity.UserRoleEnum;
+import com.example.postlv3.exception.NotMineException;
 import com.example.postlv3.repository.CommentRepository;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.security.UserDetailsImpl;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class isItMineAop {
+public class IsItMineAop {
 
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
@@ -43,9 +44,8 @@ public class isItMineAop {
         UserRoleEnum currentUserRole = userDetails.getUser().getRole();
 
         if (!isPostMine(joinPoint, currentUserId) && currentUserRole != UserRoleEnum.ADMIN) {
-            throw new IllegalArgumentException("당신의 글이 아닙니다.");
+            throw new NotMineException("당신의 게시글이 아닙니다.");
         }
-
     }
 
     private boolean isPostMine(JoinPoint joinPoint, Long userId) {
@@ -73,7 +73,7 @@ public class isItMineAop {
         UserRoleEnum currentUserRole = userDetails.getUser().getRole();
 
         if (!isCommentMine(joinPoint, currentUserId)&& currentUserRole != UserRoleEnum.ADMIN) {
-            throw new IllegalArgumentException("당신의 글이 아닙니다.");
+            throw new NotMineException("당신의 댓글이 아닙니다.");
         }
     }
 

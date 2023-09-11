@@ -52,7 +52,6 @@ public class CommentService {
     @Transactional
     public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto) {
         Comment comment = findComment(id);
-
         comment.update(requestDto);
         return new CommentResponseDto(comment);
     }
@@ -60,7 +59,6 @@ public class CommentService {
     // 댓글 삭제
     public StatusResponseDto deleteComment(Long id) {
         Comment comment = findComment(id);
-
         commentRepository.delete(comment);
         return new StatusResponseDto("삭제 성공", 200);
     }
@@ -102,12 +100,5 @@ public class CommentService {
         }
     }
 
-    // 수정,삭제 권한
-    private boolean validateUserAuthority(Comment comment, User currentUser) {
-        if (comment.getUser().equals(currentUser) || currentUser.getRole() == UserRoleEnum.ADMIN)
-            return true;
-        else
-            return false;
-    }
 }
 

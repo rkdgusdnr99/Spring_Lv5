@@ -23,4 +23,15 @@ public class CustomExceptionHandler{
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    @ExceptionHandler({NotMineException.class})
+    protected ResponseEntity<RestApiException> NotMineExceptionHandler(NotMineException ex) {
+        RestApiException restApiException = new RestApiException(ex.getMessage(), HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(
+                // HTTP body
+                restApiException,
+                // HTTP status code
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }
