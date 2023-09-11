@@ -86,30 +86,18 @@ public class PostService {
     // 게시글 수정
     @Transactional
     public ResponseDto updatePost(Long id, RequestDto requestDto) {
-        User currentUser = getCurrentUser();
         Post post = findPost(id);
 
-        if (validateUserAuthority(post,currentUser)) {
-            post.update(requestDto);
-            return new ResponseDto(post);
-        }
-        else
-            return new ResponseDto("본인의 게시글만 수정 할 수 있습니다.", 400);
+        post.update(requestDto);
+        return new ResponseDto(post);
     }
 
     // 게시글 삭제
     public StatusResponseDto deletePost(Long id) {
-        User currentUser = getCurrentUser();
         Post post = findPost(id);
 
-        if (validateUserAuthority(post,currentUser)) {
-            postRepository.delete(post);
-            return new StatusResponseDto("삭제 성공", 200);
-        }
-        else {
-            return new StatusResponseDto("본인의 게시글만 삭제 할 수 있습니다.", 400);
-            //return ResponseEntity.status(200).body("상태코드 : " + HttpStatus.OK.value() + " 메세지 : 게시물 수정 성공");
-        }
+        postRepository.delete(post);
+        return new StatusResponseDto("삭제 성공", 200);
     }
 
 

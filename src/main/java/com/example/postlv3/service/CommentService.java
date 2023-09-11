@@ -51,34 +51,23 @@ public class CommentService {
     // 댓글 수정
     @Transactional
     public CommentResponseDto updateComment(Long id, CommentRequestDto requestDto) {
-        User currentUser = getCurrentUser();
         Comment comment = findComment(id);
 
-        if (validateUserAuthority(comment, currentUser)) {
-            comment.update(requestDto);
-            return new CommentResponseDto(comment);
-        }
-        else {
-            return new CommentResponseDto("본인의 댓글만 수정 할 수 있습니다.", 400);
-        }
+        comment.update(requestDto);
+        return new CommentResponseDto(comment);
     }
 
     // 댓글 삭제
-    public StatusResponseDto deletePost(Long id) {
-        User currentUser = getCurrentUser();
+    public StatusResponseDto deleteComment(Long id) {
         Comment comment = findComment(id);
 
-        if(validateUserAuthority(comment,currentUser)) {
-            commentRepository.delete(comment);
-            return new StatusResponseDto("삭제 성공", 200);
-        }
-        else
-            return new StatusResponseDto("본인의 댓글만 삭제 할 수 있습니다.", 400);
+        commentRepository.delete(comment);
+        return new StatusResponseDto("삭제 성공", 200);
     }
 
     // id 찾기
     public Comment findComment(Long id) {
-        return commentRepository.findCommentById(id).orElseThrow(() ->
+        return commentRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 댓글은 존재하지 않습니다.")
         );
     }

@@ -32,7 +32,7 @@ public class CommentController {
     // 5. 게시글 삭제
     @DeleteMapping("/comment/{id}")
     public StatusResponseDto deleteComment(@PathVariable Long id) {
-        return commentService.deletePost(id);
+        return commentService.deleteComment(id);
     }
 
 
