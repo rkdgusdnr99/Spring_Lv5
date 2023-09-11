@@ -35,5 +35,10 @@ public class CommentController {
         return commentService.deleteComment(id);
     }
 
+    @PutMapping("/comment/{id}/like")
+    public StatusResponseDto updateCommentLike(@PathVariable Long id) {
+        return commentService.updateCommentLike(id);
+    }
+
 
 }

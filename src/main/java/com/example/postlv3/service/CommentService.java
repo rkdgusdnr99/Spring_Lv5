@@ -3,10 +3,8 @@ package com.example.postlv3.service;
 import com.example.postlv3.dto.CommentRequestDto;
 import com.example.postlv3.dto.CommentResponseDto;
 import com.example.postlv3.dto.StatusResponseDto;
-import com.example.postlv3.entity.Comment;
-import com.example.postlv3.entity.Post;
-import com.example.postlv3.entity.User;
-import com.example.postlv3.entity.UserRoleEnum;
+import com.example.postlv3.entity.*;
+import com.example.postlv3.repository.CommentLikeRepository;
 import com.example.postlv3.repository.CommentRepository;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
@@ -27,6 +25,8 @@ public class CommentService {
     private final UserRepository userRepository;
 
     private final PostRepository postRepository;
+
+    private final CommentLikeRepository commentLikeRepository;
 
 
 
@@ -65,15 +65,28 @@ public class CommentService {
         return new StatusResponseDto("삭제 성공", 200);
     }
 
+    public StatusResponseDto updateCommentLike(Long commentId) {
+        User currentUser = getCurrentUser();
+        Long userId = currentUser.getId();
+        CommentLike commentLike = commentLikeRepository.findCommentLikeByUserIdAndCommentId(userId, commentId);
+        if (commentLike == null) {
+            Comment currentComment = findComment(commentId);
+            CommentLike commentLikeAdd = new CommentLike(currentComment, currentUser);
+            commentLikeRepository.save(commentLikeAdd);
+            return new StatusResponseDto("좋아요 + 1", 200);
+        }
+        else {
+            commentLikeRepository.delete(commentLike);
+            return new StatusResponseDto("좋아요 - 1", 200);
+        }
+    }
+
     // id 찾기
     public Comment findComment(Long id) {
         return commentRepository.findById(id).orElseThrow(() ->
                 new IllegalArgumentException("선택한 댓글은 존재하지 않습니다.")
         );
     }
-
-
-
 
     // 저장된 토큰과 현재 입력하는 유저네임 비교
     public User getCurrentUser() {

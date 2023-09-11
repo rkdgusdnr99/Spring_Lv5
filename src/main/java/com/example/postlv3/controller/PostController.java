@@ -49,6 +49,10 @@ public class PostController {
         return postService.deletePost(id);
     }
 
+    @PutMapping("/post/{id}/like")
+    public StatusResponseDto updatePostLike(@PathVariable Long id) {
+        return postService.updatePostLike(id);
+    }
 
 }
 

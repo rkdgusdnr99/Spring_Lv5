@@ -1,11 +1,9 @@
 package com.example.postlv3.service;
 
 import com.example.postlv3.dto.*;
-import com.example.postlv3.entity.Comment;
-import com.example.postlv3.entity.Post;
-import com.example.postlv3.entity.User;
-import com.example.postlv3.entity.UserRoleEnum;
+import com.example.postlv3.entity.*;
 import com.example.postlv3.repository.CommentRepository;
+import com.example.postlv3.repository.PostLikeRepository;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
 
 
     // 게시글 작성
@@ -101,8 +100,21 @@ public class PostService {
     }
 
 
-
-
+    public StatusResponseDto updatePostLike(Long postId) {
+        User currentUser = getCurrentUser();
+        Long userId = currentUser.getId();
+        PostLike postLike = postLikeRepository.findPostLikeByUserIdAndPostId(userId, postId);
+        if (postLike == null) {
+            Post currentPost = findPost(postId);
+            PostLike postLikeAdd = new PostLike(currentPost, currentUser);
+            postLikeRepository.save(postLikeAdd);
+            return new StatusResponseDto("좋아요 + 1", 200);
+        }
+        else {
+            postLikeRepository.delete(postLike);
+            return new StatusResponseDto("좋아요 - 1", 200);
+        }
+    }
 
     // id 찾기
     public Post findPost(Long id) {
@@ -133,5 +145,4 @@ public class PostService {
         else
             return false;
     }
-
 }

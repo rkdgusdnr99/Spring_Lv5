@@ -19,6 +19,9 @@ public class CommentResponseDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String username;
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    private int likeCount;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime createdAt;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private LocalDateTime modifiedAt;
@@ -35,6 +38,7 @@ public class CommentResponseDto {
         this.username = comment.getUser().getUsername();
         this.createdAt = comment.getCreatedAt();
         this.modifiedAt = comment.getModifiedAt();
+        this.likeCount = comment.getCommentLikeList().size();
     }
 
     public CommentResponseDto(String msg, Integer statusCode) {

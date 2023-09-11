@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 public class Post extends Timestamped {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,6 +27,9 @@ public class Post extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "post")
+    private List<PostLike> postLikeList = new ArrayList<>();
 
     public Post(RequestDto requestDto) {
         this.title = requestDto.getTitle();

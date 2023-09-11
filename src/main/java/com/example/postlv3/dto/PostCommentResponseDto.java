@@ -15,6 +15,8 @@ public class PostCommentResponseDto {
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
+    private int likeCount;
+
     List<CommentResponseDto> comments;
 
     public PostCommentResponseDto(Post post, List<CommentResponseDto> comments) {
@@ -24,6 +26,7 @@ public class PostCommentResponseDto {
         this.username = post.getUser().getUsername();
         this.createdAt = post.getCreatedAt();
         this.modifiedAt = post.getModifiedAt();
+        this.likeCount = post.getPostLikeList().size();
         this.comments = comments;
     }
 }
