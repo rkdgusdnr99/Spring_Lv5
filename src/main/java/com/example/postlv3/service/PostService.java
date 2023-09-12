@@ -7,6 +7,10 @@ import com.example.postlv3.repository.PostLikeRepository;
 import com.example.postlv3.repository.PostRepository;
 import com.example.postlv3.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +47,46 @@ public class PostService {
         return responseDto;
     }
 
-    // 게시글 수정
+    // 게시글 페이지 조회
+    public Page<ResponseDto> getPage(int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Post> postPage = postRepository.findAll(pageable);
+
+        return postPage.map(ResponseDto::new);
+        // 페이징된 게시글에 댓글까지 조회 기능, 실질적으로는 너무나 필요 없어 보여서 주석처리, 하지만 가능은 하다
+//        return postsPage.map(post -> {
+//            List<Comment> comments = post.getComments();
+//            List<CommentResponseDto> commentResponseDtos = comments.stream()
+//                    .map(CommentResponseDto::new)
+//                    .collect(Collectors.toList());
+//            return new PostCommentResponseDto(post, commentResponseDtos);
+//        });
+    }
+
+    // 특정 게시글 페이지 조회 + 댓글 페이징
+    public PostCommentResponseDto getCommentPage(Long id, int page, int size, String sortBy, boolean isAsc) {
+        Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Post post = postRepository.findPostById(id);
+
+        Page<Comment> commentPage = commentRepository.findAllByPostId(id, pageable);
+
+        List<CommentResponseDto> commentResponseDtos = commentPage.getContent().stream()
+                .map(CommentResponseDto::new)
+                .collect(Collectors.toList());
+
+
+        PostCommentResponseDto postCommentResponseDto = new PostCommentResponseDto(post, commentResponseDtos);
+
+        return postCommentResponseDto;
+    }
+
+    // 전체 게시글 조회
     public List<PostCommentResponseDto> getPosts() {
         List<Post> posts = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostCommentResponseDto> postCommentResponseDtos = new ArrayList<>();
@@ -64,7 +108,6 @@ public class PostService {
     }
 
     // 선택한 게시글 조회
-    //
     public PostCommentResponseDto getPost(Long id) {
         Post post = postRepository.findPostById(id);
 
