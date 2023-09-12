@@ -1,6 +1,7 @@
 package com.example.postlv3.jwt;
 
 import com.example.postlv3.dto.StatusResponseDto;
+import com.example.postlv3.entity.UserRoleEnum;
 import com.example.postlv3.security.UserDetailsServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -36,7 +37,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
 
-        String tokenValue = jwtUtil.getTokenFromRequest(req);
+        String accessTokenValue = jwtUtil.getTokenFromRequest(req);
 
         // 오류 메세지
         StatusResponseDto responseDto = new StatusResponseDto("토큰이 유효하지 않습니다.", 400);
@@ -46,18 +47,30 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // JSON 변환 후 출력
         ObjectMapper objectMapper = new ObjectMapper();
 
-        if (StringUtils.hasText(tokenValue)) {
+        if (StringUtils.hasText(accessTokenValue)) {
             // JWT 토큰 substring
-            tokenValue = jwtUtil.substringToken(tokenValue);
-            log.info(tokenValue);
+            accessTokenValue = jwtUtil.substringToken(accessTokenValue);
+            log.info(accessTokenValue);
 
-            if (!jwtUtil.validateToken(tokenValue)) {
-                log.error("Token Error");
-                objectMapper.writeValue(res.getWriter(), responseDto);
-                return;
+            if (!jwtUtil.validateToken(accessTokenValue)) {
+                String refreshTokenValue = jwtUtil.getJwtFromHeader(req);
+                System.out.println("refershToken 값: " + refreshTokenValue);
+                if (!jwtUtil.validateToken(refreshTokenValue)) {
+                    log.error("Token Error");
+                    System.out.println("Token Error");
+                    objectMapper.writeValue(res.getWriter(), responseDto);
+                    return;
+                }
+                else {
+                    Claims refreshTokenInfo = jwtUtil.getUserInfoFromToken(refreshTokenValue);
+                    String newAccessToken = jwtUtil.createAccessToken(refreshTokenInfo.getSubject(), refreshTokenInfo.get("role", UserRoleEnum.class));
+                    jwtUtil.addJwtToCookie(newAccessToken, res);
+                    accessTokenValue = jwtUtil.substringToken(newAccessToken);
+                }
+
             }
 
-            Claims info = jwtUtil.getUserInfoFromToken(tokenValue);
+            Claims info = jwtUtil.getUserInfoFromToken(accessTokenValue);
 
             try {
                 setAuthentication(info.getSubject());
